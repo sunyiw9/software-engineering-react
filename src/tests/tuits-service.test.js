@@ -146,22 +146,27 @@ describe('can retrieve all tuits with REST API', () => {
     let existingTuits = null;
     let newUser = null;
 
-    beforeAll(async () => {
-      await deleteUsersByUsername(ripley.username);
-      newUser = await createUser(ripley);
+    beforeAll( () => {
+      return  deleteUsersByUsername(ripley.username);
       }
     )
 
     afterAll(() => {
-        (existingTuits || []).map((tuit) => {
-            deleteTuit(tuit._id);
-        });
-        return deleteUsersByUsername(ripley.username);
+        // (existingTuits || []).map((tuit) => {
+        //     deleteTuit(tuit._id);
+        // });
+        // return deleteUsersByUsername(ripley.username);
+        deleteUsersByUsername(ripley.username);
+        return Promise.all(existingTuits.map((tuit) => {
+            return deleteTuit(tuit._id);
+        }));
     });
 
     test('can retrieve all tuits', async () => {
+        newUser = await createUser(ripley);
+
         const createdTuits = await Promise.all(tuits.map(tuit =>
-          {return createTuit(newUser._id, tuit)}
+          {return createTuit(newUser._id, tuit);}
         ));
 
         existingTuits = await findTuitByUser(newUser._id);
